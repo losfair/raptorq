@@ -118,6 +118,23 @@ impl Decoder {
         result.truncate(self.config.transfer_length() as usize);
         Some(result)
     }
+
+    #[cfg(not(feature = "python"))]
+    pub fn get_result_to(&self, output: &mut [u8]) -> bool {
+        for block in self.blocks.iter() {
+            if block.is_none() {
+                return false;
+            }
+        }
+
+        let mut pos = 0usize;
+
+        for block in self.blocks.iter().flatten() {
+            output[pos..pos + block.len()].copy_from_slice(&block);
+            pos += block.len();
+        }
+        true
+    }
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
